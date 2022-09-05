@@ -31,4 +31,9 @@ features = [
   "ProgressEvent",
   "WebSocket",
   "File",
+  'Document',
+  'Element',
+  'HtmlElement',
+  'Node',
+  'Window',
 ]

@@ -90,20 +90,21 @@ impl Component for Model {
                 let files_clone2 = files[0].clone();
                 let file_name2 = files_clone2.name();
                 let file_name3 = format!("{}2",file_name2);
-                //let file_size:f64 = files_clone.size();
-                //let file_num:u64 = file_size / 50000;
-                log::info!("files_clone: {:?}", files_clone.size());
+                // let file_size:f64 = files_clone.size();
+                // //let file_num:u64 = file_size / 50000;
+                // log::info!("files_clone: {:?}", files_clone.size());
                 // for i in 0..2{
                 //     let start =i*102400;
                 //     let end = start + 102400;
                 //     let slice = files_clone.slice_with_i32_and_i32(start, end).unwrap();
                 //     log::info!("slice: {:?}", slice.size());
-                //     app::start_websocket(slice,i);
+                //     let file_name_clone = file_name.clone();
+                //     //app::start_websocket(slice,file_name_clone);
                    
                 // }
-                log::info!("files: {:?}", file_name);
-                log::info!("files3: {:?}", file_name3);
-
+                // log::info!("files: {:?}", file_name);
+                // log::info!("files3: {:?}", file_name3);
+                
                 // thread::spawn(||{
                 //     app::start_websocket(files_clone, file_name);
                 //     thread::sleep(Duration::from_millis(1));
@@ -163,7 +164,7 @@ impl Component for Model {
                 </div>
 
                 <div>
-                    <textarea value = {self.textarea_value.to_string()}/>
+                    <textarea id = "log_area" value = {self.textarea_value.to_string()}/>
 
                 </div>
             </div>
