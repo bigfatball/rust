@@ -43,7 +43,47 @@ pub fn start_websocket(file:File,file_name: String) -> Result<(), JsValue> {
             console_log!("message event, received blob: {:?}", blob);
 
         } else if let Ok(txt) = e.data().dyn_into::<js_sys::JsString>() {
-            console_log!("message event, received Text: {:?}", txt);
+            if txt == "name" {
+                console_log!("onmessage name");
+                let file_size:f64 = file.size();
+        //let blob_num:f64 = file_size / 524_288_00.0;
+        let blob_num:f64 = (file_size / 104_857_600.0) + 1.0;
+        //let blob_num:f64 = (file_size / 500.0) + 1.0;
+        let blob_num = blob_num as i64;
+
+        if blob_num == 0 {
+            clone_ws.send_with_blob(&file).unwrap();
+        } else {
+            let blob_num = blob_num;
+            for i in 0..blob_num{
+                
+                console_log!("that is slice {} time", i);
+                // let start:i64 =i*500;
+                // let end:i64 = start + 500;
+
+                let start:i64 =i*104_857_600;
+                let end:i64 = start + 104_857_600;
+
+                // let start:i32 =i*500;
+                // let end:i32 = start + 500;
+                let start = start as f64;
+                let end = end as f64;
+                let slice = file.slice_with_f64_and_f64(start, end).unwrap();
+            
+               
+                
+                clone_ws.send_with_blob(&slice).unwrap();
+            }
+            console_log!("that is slice the last");
+            let blob_num = blob_num as f64; 
+            let slice = file.slice_with_f64_and_f64(blob_num * 104_857_600.0, file_size  ).unwrap();
+            // let slice = file.slice_with_f64_and_f64(blob_num * 500.0, file_size  ).unwrap();
+            clone_ws.send_with_blob(&slice).unwrap();
+        }
+            }else{
+                console_log!("message event, received Text: {:?}", txt);
+            }
+            
             
         } else {
             console_log!("message event, received Unknown: {:?}", e.data());
@@ -86,31 +126,7 @@ pub fn start_websocket(file:File,file_name: String) -> Result<(), JsValue> {
         //     },
         //     Err(err) => console_log!("error sending message: {:?}",err),
         // }
-        let file_size:f64 = file.size();
-        //let blob_num:f64 = file_size / 524_288_00.0;
-        let blob_num:f64 = file_size / 10_485_760.0;
-        let blob_num = blob_num as i32;
-
-        if blob_num == 0 {
-            clone_ws.send_with_blob(&file).unwrap();
-        } else {
-            let blob_num = blob_num -1;
-            for i in 0..blob_num{
-                // let start:i32 =i*52_428_800;
-                // let end:i32 = start + 52_428_800;
-
-                let start:i32 =i*10_485_760;
-                let end:i32 = start + 10_485_760;
-                let slice = file.slice_with_i32_and_i32(start, end).unwrap();
-            
-               
-                
-                clone_ws.send_with_blob(&slice).unwrap();
-            }
-
-            let slice = file.slice_with_i32_and_f64(blob_num*52_428_800, file_size  ).unwrap();
-            clone_ws.send_with_blob(&slice).unwrap();
-        }
+        
         
 
         
