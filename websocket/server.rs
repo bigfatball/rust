@@ -21,6 +21,8 @@ use actix_web::web::Bytes;
 use chrono::prelude::*;
 
 use gloo_file::Blob;
+
+
 pub struct MyWebSocket{
     hb: Instant,
 
@@ -94,10 +96,16 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                 self.hb = Instant::now();
             }
             Ok(ws::Message::Text(text)) => {
+                
                 let file_name = text.to_string();
                 let mut file = File::create("file_name.txt").unwrap();
                 file.write_all(file_name.as_bytes()).unwrap();
                 ctx.text("name save success");
+
+                
+                File::create(text.to_string()).expect("write failed");
+                ctx.text("name");
+
             },
             
             //{
@@ -117,17 +125,53 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                 //}else{
 
                 //}
-                
+
+
+                //get file name
                 let mut file_name = String::new();
                 let mut name_txt = File::open("file_name.txt").expect("write failed");
                 name_txt.read_to_string(&mut file_name).expect("file_name.txt is empty");
-                
-                let mut file = File::create(file_name).unwrap();
+                let mut file = OpenOptions::new().append(true).open(&file_name).expect("write failed");
                 file.write_all(&bin).unwrap();
 
-                let end_time = Utc::now().to_string();
-                let receive_message = format!("Receive success, {}!", end_time);
+                // record time for recive file
+                let udate = Utc::now().to_string();
+                let receive_message = format!("Receive file form firefox, {}!... {}", udate, &file_name);
                 ctx.text(receive_message);
+
+
+                // if Path::new("./file_name.txt").exists(){
+                //     // get file name
+                //     let mut file_name = String::new();
+                //     let mut name_txt = File::open("file_name.txt").expect("write failed");
+                //     name_txt.read_to_string(&mut file_name).expect("file_name.txt is empty");
+                    
+                //     // record time for recive file
+                //     let udate = Utc::now().to_string();
+                //     let receive_message = format!("Start to receive file form chrome, {}!... {}", udate, file_name);
+                //     ctx.text(receive_message);
+            
+                //     // create new floder to save data
+                //     // write data into file
+                //     let mut file = OpenOptions::new().append(true).open(file_name).expect("write failed");
+                //     file.write_all(&bin).unwrap();
+                // }else{
+                //     // this if first blob income
+                //     // create new file_name.txt to save file name
+                //     let mut file_name = String::new();
+                //     let mut name_txt = File::open("file_name.txt").expect("write failed");
+                //     name_txt.read_to_string(&mut file_name).expect("file_name.txt is empty");
+                
+                //     // create new floder to save data
+                //     let mut file = File::create(file_name).unwrap();
+                //     file.write_all(&bin).unwrap();
+
+                //     // gen the time of the receive each blob save
+                //     let end_time = Utc::now().to_string();
+                //     let receive_message = format!("Receive success, {}!", end_time);
+                //     ctx.text(receive_message);
+                // }
+                
             },
             
             Ok(ws::Message::Close(reason)) => {
@@ -177,7 +221,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
 
                         
 
-
+                        // write data into file
                         let mut file = OpenOptions::new().append(true).open(file_name).expect("write failed");
                         file.write_all(&c).unwrap();
                     },
