@@ -10,6 +10,7 @@ const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(500000000);
 
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10000000);
 
+use std::fs;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -96,16 +97,39 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
                 self.hb = Instant::now();
             }
             Ok(ws::Message::Text(text)) => {
-                
-                let file_name = text.to_string();
-                let mut file = File::create("file_name.txt").unwrap();
-                file.write_all(file_name.as_bytes()).unwrap();
-                ctx.text("name save success");
+                /*
+                singal file version
+                */
+                // let file_name = text.to_string();
+                // let mut file = File::create("file_name.txt").unwrap();
+                // file.write_all(file_name.as_bytes()).unwrap();
+                // ctx.text("name save success");
 
                 
-                File::create(text.to_string()).expect("write failed");
-                ctx.text("name");
+                // File::create(text.to_string()).expect("write failed");
+                // ctx.text("name");
 
+
+                let event_header = &text[0..5];
+                let file_name = &text[5..];
+                if event_header == "name:"{
+                    
+
+                    if Path::new("./1").exists(){
+                        fs::create_dir_all("./2").unwrap();
+                        let file_name_path = format!("./2/{}",&file_name);
+                        File::create(file_name_path).unwrap();
+                    }else{
+                        fs::create_dir_all("./1").unwrap();
+                        let file_name_path = format!("./1/{}",&file_name);
+                        File::create(file_name_path).unwrap();
+                    }
+                    ctx.text("name save success");
+                    ctx.text("name");
+
+                }else{
+                    ctx.text(text);
+                }
             },
             
             //{
@@ -126,51 +150,53 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
 
                 //}
 
+                /*
+                singal file version
+                */
+                // //get file name
+                // let mut file_name = String::new();
+                // let mut name_txt = File::open("file_name.txt").expect("write failed");
+                // name_txt.read_to_string(&mut file_name).expect("file_name.txt is empty");
+                // let mut file = OpenOptions::new().append(true).open(&file_name).expect("write failed");
+                // file.write_all(&bin).unwrap();
 
-                //get file name
-                let mut file_name = String::new();
-                let mut name_txt = File::open("file_name.txt").expect("write failed");
-                name_txt.read_to_string(&mut file_name).expect("file_name.txt is empty");
-                let mut file = OpenOptions::new().append(true).open(&file_name).expect("write failed");
-                file.write_all(&bin).unwrap();
-
-                // record time for recive file
-                let udate = Utc::now().to_string();
-                let receive_message = format!("Receive file form firefox, {}!... {}", udate, &file_name);
-                ctx.text(receive_message);
+                // // record time for recive file
+                // let udate = Utc::now().to_string();
+                // let receive_message = format!("Receive file form firefox, {}!... {}", udate, &file_name);
+                // ctx.text(receive_message);
 
 
-                // if Path::new("./file_name.txt").exists(){
-                //     // get file name
-                //     let mut file_name = String::new();
-                //     let mut name_txt = File::open("file_name.txt").expect("write failed");
-                //     name_txt.read_to_string(&mut file_name).expect("file_name.txt is empty");
+                if Path::new("./file_name.txt").exists(){
+                    // get file name, get first file
+                    let mut file_name = String::new();
+                    let mut name_txt = File::open("file_name.txt").expect("write failed");
+                    name_txt.read_to_string(&mut file_name).expect("file_name.txt is empty");
                     
-                //     // record time for recive file
-                //     let udate = Utc::now().to_string();
-                //     let receive_message = format!("Start to receive file form chrome, {}!... {}", udate, file_name);
-                //     ctx.text(receive_message);
+                    // record time for recive file
+                    let udate = Utc::now().to_string();
+                    let receive_message = format!("Start to receive file form chrome, {}!... {}", udate, file_name);
+                    ctx.text(receive_message);
             
-                //     // create new floder to save data
-                //     // write data into file
-                //     let mut file = OpenOptions::new().append(true).open(file_name).expect("write failed");
-                //     file.write_all(&bin).unwrap();
-                // }else{
-                //     // this if first blob income
-                //     // create new file_name.txt to save file name
-                //     let mut file_name = String::new();
-                //     let mut name_txt = File::open("file_name.txt").expect("write failed");
-                //     name_txt.read_to_string(&mut file_name).expect("file_name.txt is empty");
+                    // create new floder to save data
+                    // write data into file
+                    let mut file = OpenOptions::new().append(true).open(file_name).expect("write failed");
+                    file.write_all(&bin).unwrap();
+                }else{
+                    // this if first blob income
+                    // create new file_name.txt to save file name
+                    let mut file_name = String::new();
+                    let mut name_txt = File::open("file_name.txt").expect("write failed");
+                    name_txt.read_to_string(&mut file_name).expect("file_name.txt is empty");
                 
-                //     // create new floder to save data
-                //     let mut file = File::create(file_name).unwrap();
-                //     file.write_all(&bin).unwrap();
+                    // create new floder to save data
+                    let mut file = File::create(file_name).unwrap();
+                    file.write_all(&bin).unwrap();
 
-                //     // gen the time of the receive each blob save
-                //     let end_time = Utc::now().to_string();
-                //     let receive_message = format!("Receive success, {}!", end_time);
-                //     ctx.text(receive_message);
-                // }
+                    // gen the time of the receive each blob save
+                    let end_time = Utc::now().to_string();
+                    let receive_message = format!("Receive success, {}!", end_time);
+                    ctx.text(receive_message);
+                }
                 
             },
             
