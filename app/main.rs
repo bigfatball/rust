@@ -63,8 +63,8 @@ impl Component for Model {
                 true
             }
             Msg::Conn => {
-                let ws = WebSocket::open("ws://192.168.65.131:8080").unwrap();
-    
+                let ws = WebSocket::open("ws://192.168.248.130:8080/ws1").unwrap();
+                let ws2 = WebSocket::open("ws://192.168.248.130:8080/").unwrap();
                 let (mut write, mut read) = ws.split();
         
                 spawn_local(async move {
