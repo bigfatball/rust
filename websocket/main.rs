@@ -31,7 +31,9 @@ async fn main() -> std::io::Result<()> {
         // .service(
         //     web::resource("/").to(index)
         // )
-        
+        .service(
+            web::resource("/ws1").route(web::get().to(websocket))
+        )
      
         
         .service(
@@ -41,7 +43,7 @@ async fn main() -> std::io::Result<()> {
 
     })
     .workers(4)
-    .bind(("192.168.65.131", 8080))?
+    .bind(("192.168.248.130", 8080))?
     .run()
     .await
 
